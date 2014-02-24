@@ -25,7 +25,7 @@ function check_attached_node_fdir(p, n)
 end
 
 minetest.register_abm({
-	nodenames = {"default:torch_wand"},
+	nodenames = {"default:torch"},
 	interval = 1,
 	chance = 1,
 	action = function(pos)
@@ -37,7 +37,7 @@ minetest.register_abm({
 })
 
 minetest.register_abm({
-	nodenames = {"default:torch_floor"},
+	nodenames = {"default:torch_on_floor"},
 	interval = 1,
 	chance = 1,
 	action = function(pos)
@@ -87,9 +87,9 @@ minetest.register_craftitem(":default:torch", {
 		local u_n = minetest.get_node(above)
 		if u_n and minetest.registered_nodes[u_n.name].walkable then return itemstack end
 		if wdir == 1 then
-			minetest.env:add_node(above, {name = "default:torch_floor"})		
+			minetest.env:add_node(above, {name = "default:torch_on_floor"})		
 		else
-			minetest.env:add_node(above, {name = "default:torch_wand", param2 = is_wall(wdir)})
+			minetest.env:add_node(above, {name = "default:torch", param2 = is_wall(wdir)})
 		end
 		if not wdir == 0 or not minetest.setting_getbool("creative_mode") then
 			itemstack:take_item()
@@ -100,7 +100,7 @@ minetest.register_craftitem(":default:torch", {
 
 })
 
-minetest.register_node("default:torch_floor", {
+minetest.register_node("default:torch_on_floor", {
 	--description = "Fakel",
 	inventory_image = "default_torch_inv.png",
 	wield_image = "default_torch.png",
@@ -140,7 +140,7 @@ local wall_ndbx = {
 			{-1/16, 0, -1/16, 1/16, 2/16, 1/16},
 }
 
-minetest.register_node("default:torch_wand", {
+minetest.register_node("default:torch", {
 	--description = "Fakel",
 	inventory_image = "default_torch_inv.png",
 	wield_image = "default_torch.png",
@@ -171,5 +171,5 @@ minetest.register_node("default:torch_wand", {
 
 })
 
-minetest.register_alias("default:wand",  "default:torch_wand")
-minetest.register_alias("default:floor",  "default:torch_floor")
+minetest.register_alias("default:wand",  "default:torch")
+minetest.register_alias("default:floor",  "default:torch_on_floor")

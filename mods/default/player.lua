@@ -54,7 +54,7 @@ model_def = {
 -- Note: This is currently broken due to a bug in Irrlicht, leave at 0
 local animation_blend = 0
 
-default.registered_player_models = {}
+default.registered_player_models = { }
 
 -- Local for speed.
 local models = default.registered_player_models
@@ -66,7 +66,7 @@ end
 -- Default player appearance
 default.player_register_model("character.x", {
 	animation_speed = 30,
-	textures = {"character.png"},
+	textures = {"character.png", },
 	animations = {
 		-- Standard animations.
 		stand     = { x=  0, y= 79, },
@@ -138,33 +138,16 @@ function default.player_set_animation(player, anim_name, speed)
 	player:set_animation(anim, speed or model.animation_speed, animation_blend)
 end
 
-function default.set_player_inventory(player)
-	local player_name = player:get_player_name()
-        player:set_inventory_formspec(
-		"size[8,8.5]"..
-		"bgcolor[#000A;true]"..
-		"background[-0.19,-0.25;8.41,9.25;default_formspec_bg.png^default_formspec_player.png]"..
-		"list[current_player;main;0,4.25;8,1;]"..
-                "list[current_player;main;0,5.5;8,3;8]"..
-		"list[current_player;craft;0.5,0.5;3,3;]"..
-		"list[current_player;craftpreview;4.5,1.5;1,1;]"..
-		--armor
-		"list[detached:"..player_name.."_armor;armor_head;7,0;1,1;]"..
-		"list[detached:"..player_name.."_armor;armor_torso;7,1;1,1;]"..
-		"list[detached:"..player_name.."_armor;armor_legs;7,2;1,1;]"..
-		"list[detached:"..player_name.."_armor;armor_feet;7,3;1,1;]"..
-		"listcolors[#AAA0;#FFF5]"
-        )
-end
-
--- Update appearance and formspec when the player joins
+-- Update appearance when the player joins
 minetest.register_on_joinplayer(function(player)
 	default.player_set_model(player, "character.x")
-	if minetest.setting_getbool("creative_mode") then
-		creative.set_creative_formspec(player, 0, 1)
-	else
-		default.set_player_inventory(player)
-	end
+end)
+
+minetest.register_on_leaveplayer(function(player)
+	local name = player:get_player_name()
+	player_model[name] = nil
+	player_anim[name] = nil
+	player_textures[name] = nil
 end)
 
 -- Localize for better performance.
@@ -211,41 +194,4 @@ minetest.register_globalstep(function(dtime)
 			end
 		end
 	end
-end)
-
---
--- the hand
---
-
-local tool_cap = {
-		full_punch_interval = 1.0,
-		max_drop_level = 0,
-		groupcaps = {
-			fleshy = {times={[2]=2.00, [3]=1.00}, uses=0, maxlevel=1},
-			crumbly = {times={[2]=3.00, [3]=0.70}, uses=0, maxlevel=1},
-			snappy = {times={[3]=0.40}, uses=0, maxlevel=1},
-			oddly_breakable_by_hand = {times={[1]=7.00,[2]=4.00,[3]=1.40}, uses=0, maxlevel=3},
-		}
-	}
-if minetest.setting_getbool("creative_mode") then
-tool_cap = {	full_punch_interval = 0.5,
-		max_drop_level = 3,
-		groupcaps = {
-			crumbly = {times={[1]=0.3, [2]=0.3, [3]=0.3}, uses=0, maxlevel=3},
-			cracky = {times={[1]=0.3, [2]=0.3, [3]=0.3}, uses=0, maxlevel=3},
-			snappy = {times={[1]=0.3, [2]=0.3, [3]=0.3}, uses=0, maxlevel=3},
-			choppy = {times={[1]=0.3, [2]=0.3, [3]=0.3}, uses=0, maxlevel=3},
-			oddly_breakable_by_hand = {times={[1]=0.3, [2]=0.3, [3]=0.3}, uses=0, maxlevel=3},
-		},
-		damage_groups = {fleshy = 10},
-	}
-end
-
-minetest.after(0, function()
-	minetest.register_item(":", {
-		type = "none",
-		wield_image = minetest.inventorycube("hand_top.png", "hand_left.png", "hand_right.png"),
-		wield_scale = {x=0.6,y=1.1,z=3.8},
-		tool_capabilities = tool_cap,
-	})
 end)
